@@ -3,7 +3,7 @@ import List from './components/list';
 import Controls from './components/controls';
 import Head from './components/head';
 import PageLayout from './components/page-layout';
-
+import Cart from './components/cart'
 /**
  * Приложение
  * @param store {Store} Хранилище состояния приложения
@@ -11,35 +11,42 @@ import PageLayout from './components/page-layout';
  */
 function App({ store }) {
   const list = store.getState().list;
-
+  const cart = store.cart
   const callbacks = {
     onDeleteItem: useCallback(
       code => {
-        store.deleteItem(code);
+        store.removeFromCart(code);
+        store.makeSum()
       },
       [store],
     ),
 
-    onSelectItem: useCallback(
+    onAddItem: useCallback(
       code => {
-        store.selectItem(code);
+        store.addToCart(code);
+        store.makeSum()
       },
       [store],
     ),
 
-    onAddItem: useCallback(() => {
-      store.addItem();
-    }, [store]),
+    onOpenCart: useCallback(() => {
+      store.onOpenCart()
+    }, []),
+    onCloseCart: useCallback(() => {
+      store.onCloseCart()
+
+    }, []),
   };
 
   return (
     <PageLayout>
-      <Head title="Приложение на чистом JS" />
-      <Controls onAdd={callbacks.onAddItem} />
+      <Head title="Магазин" />
+
+      <Controls store={store} length={store.cart.length} sum={store.sum} onOpenCart={callbacks.onOpenCart} onDeleteItem={callbacks.onDeleteItem} />
+      <Cart flag={store.flag} store={store} onCloseCart={callbacks.onCloseCart} onDelete={callbacks.onDeleteItem} cart={cart} length={store.cart.length} sum={store.sum} />
       <List
         list={list}
-        onDeleteItem={callbacks.onDeleteItem}
-        onSelectItem={callbacks.onSelectItem}
+        onAddItem={callbacks.onAddItem}
       />
     </PageLayout>
   );
